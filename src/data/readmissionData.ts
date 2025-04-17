@@ -32,29 +32,29 @@ export interface ReadmissionTrend {
 }
 
 // Generate a realistic dataset
-const diagnoses = [
+export const diagnoses = [
   'Heart Failure', 'Pneumonia', 'COPD', 'Diabetes', 'Stroke', 
   'Urinary Tract Infection', 'Sepsis', 'Kidney Failure', 'Gastrointestinal Bleeding',
   'Cardiac Arrhythmia'
 ];
 
-const departments = [
+export const departments = [
   'Cardiology', 'Pulmonology', 'Neurology', 'Gastroenterology', 
   'Nephrology', 'Internal Medicine', 'Geriatrics', 'Oncology'
 ];
 
-const insuranceTypes = [
+export const insuranceTypes = [
   'Medicare', 'Medicaid', 'Private', 'Self-Pay', 'Other'
 ];
 
-const comorbidityList = [
+export const comorbidityList = [
   'Hypertension', 'Diabetes', 'Obesity', 'COPD', 'Depression',
   'Chronic Kidney Disease', 'Congestive Heart Failure', 'Atrial Fibrillation',
   'Coronary Artery Disease', 'Dementia', 'Cancer', 'Arthritis'
 ];
 
 // Risk factors that can lead to readmission
-const riskFactorList = [
+export const riskFactorList = [
   'Multiple Medications', 'Poor Social Support', 'History of Readmission',
   'Low Health Literacy', 'Complex Treatment Regimen', 'Depression',
   'Poor Nutrition', 'Medication Non-adherence', 'Limited Access to Care',

@@ -7,7 +7,8 @@ import {
   CheckCircle2, 
   XCircle, 
   ChevronLeft, 
-  ChevronRight
+  ChevronRight,
+  PlusCircle
 } from 'lucide-react';
 import { patients } from '../data/readmissionData';
 import { Input } from '@/components/ui/input';
@@ -38,15 +39,23 @@ const PatientRecords: React.FC = () => {
     <div className="dashboard-card">
       <div className="dashboard-card-header flex justify-between items-center">
         <h3 className="text-lg font-medium">Patient Records</h3>
-        <div className="relative w-64">
-          <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-          <Input
-            type="text"
-            placeholder="Search patients..."
-            className="pl-8 bg-white bg-opacity-80"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
+        <div className="flex items-center gap-4">
+          <div className="relative w-64">
+            <Search className="absolute left-2 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+            <Input
+              type="text"
+              placeholder="Search patients..."
+              className="pl-8 bg-white bg-opacity-80"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+          <Link to="/patients/add">
+            <Button className="whitespace-nowrap">
+              <PlusCircle className="h-4 w-4 mr-2" />
+              Add Patient
+            </Button>
+          </Link>
         </div>
       </div>
       <div className="overflow-x-auto">

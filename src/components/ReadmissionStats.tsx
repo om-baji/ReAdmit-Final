@@ -43,8 +43,7 @@ const ReadmissionStats: React.FC = () => {
           </div>
         </div>
         <div className="mt-3">
-          <Progress value={stats.avgLengthOfStay * 10} className="h-2 bg-blue-100" 
-                   indicatorClassName="bg-medical-secondary" />
+          <Progress value={stats.avgLengthOfStay * 10} className="h-2 bg-blue-100" />
         </div>
         <p className="mt-3 text-sm text-gray-500">
           Average duration from admission to discharge
@@ -67,11 +66,10 @@ const ReadmissionStats: React.FC = () => {
           <Progress 
             value={(stats.highRiskPatients / stats.totalPatients) * 100} 
             className="h-2 bg-blue-100"
-            indicatorClassName="bg-medical-warning" 
           />
         </div>
         <p className="mt-3 text-sm text-gray-500">
-          Patients with risk score > 70
+          Patients with risk score &gt; 70
         </p>
       </div>
       
@@ -91,7 +89,6 @@ const ReadmissionStats: React.FC = () => {
           <Progress 
             value={100} 
             className="h-2 bg-blue-100"
-            indicatorClassName="bg-gray-500" 
           />
         </div>
         <p className="mt-3 text-sm text-gray-500">

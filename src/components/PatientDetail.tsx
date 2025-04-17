@@ -10,7 +10,8 @@ import {
   Heart, 
   Building, 
   CreditCard,
-  ArrowLeft
+  ArrowLeft,
+  Edit
 } from 'lucide-react';
 import { patients } from '../data/readmissionData';
 import { Button } from '@/components/ui/button';
@@ -53,11 +54,18 @@ const PatientDetail: React.FC = () => {
   
   return (
     <div className="max-w-5xl mx-auto">
-      <div className="mb-6">
+      <div className="mb-6 flex justify-between items-center">
         <Link to="/patients">
           <Button variant="outline" size="sm">
             <ArrowLeft className="mr-2 h-4 w-4" />
             Back to Patient List
+          </Button>
+        </Link>
+        
+        <Link to={`/patient/${patientId}/edit`}>
+          <Button size="sm" variant="default">
+            <Edit className="mr-2 h-4 w-4" />
+            Edit Patient
           </Button>
         </Link>
       </div>
