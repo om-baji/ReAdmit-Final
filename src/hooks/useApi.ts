@@ -1,44 +1,64 @@
 
-import { useState } from 'react';
+import axios from 'axios';
 import { useQuery } from '@tanstack/react-query';
-import { getStats, getPatients, getPatientById, getAnalytics } from '../api/api';
 
-// Hook for stats data
+const api = axios.create({
+  baseURL: 'http://localhost:5000/api',
+  timeout: 10000,
+});
+
+export const getStats = async () => {
+  const response = await api.get('/stats');
+  return response.data;
+};
+
+export const getPatients = async (page: number = 1, limit: number = 10) => {
+  const response = await api.get(`/patients?page=${page}&limit=${limit}`);
+  return response.data;
+};
+
+export const getPatientById = async (id: string) => {
+  const response = await api.get(`/patients/${id}`);
+  return response.data;
+};
+
+export const getAnalytics = async () => {
+  const response = await api.get('/analytics');
+  return response.data;
+};
+
 export const useStats = () => {
   return useQuery({
     queryKey: ['stats'],
     queryFn: getStats,
     refetchOnWindowFocus: false,
-    refetchInterval: 1000 * 60 * 5, // 5 minutes
+    refetchInterval: 1000 * 60 * 5,
   });
 };
 
-// Hook for patients data with pagination
 export const usePatients = (page: number = 1, limit: number = 10) => {
   return useQuery({
     queryKey: ['patients', page, limit],
     queryFn: () => getPatients(page, limit),
-    keepPreviousData: true,
-    refetchOnWindowFocus: false,
+    staleTime: 1000 * 60 * 5,
   });
 };
 
-// Hook for single patient details
 export const usePatient = (id: string) => {
   return useQuery({
     queryKey: ['patient', id],
     queryFn: () => getPatientById(id),
-    enabled: !!id, // Only run if id is provided
-    refetchOnWindowFocus: false,
+    enabled: !!id,
   });
 };
 
-// Hook for analytics data
 export const useAnalytics = () => {
   return useQuery({
     queryKey: ['analytics'],
     queryFn: getAnalytics,
     refetchOnWindowFocus: false,
-    refetchInterval: 1000 * 60 * 15, // 15 minutes
+    refetchInterval: 1000 * 60 * 15,
   });
 };
+
+export default api;
