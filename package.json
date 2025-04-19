@@ -8,7 +8,9 @@
     "build": "vite build",
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start": "concurrently \"bun run --cwd server server.ts\" \"npm run dev\""
+
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
@@ -44,6 +46,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.0.0",
+    "concurrently": "^9.1.2",
     "crypto": "^1.0.1",
     "date-fns": "^3.6.0",
     "embla-carousel-react": "^8.3.0",

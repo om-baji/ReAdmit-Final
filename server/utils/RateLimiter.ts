@@ -4,7 +4,7 @@ import { hashIP } from './hashUtils';
 
 class RateLimiter {
   private windowMs: number;
-  private maxRequests: number;
+  private  maxRequests: number;
   private requests: Map<string, number>;
   private resetTimers: Map<string, NodeJS.Timeout>;
 
@@ -13,6 +13,14 @@ class RateLimiter {
     this.maxRequests = options.maxRequests || 60;
     this.requests = new Map();
     this.resetTimers = new Map();
+  }
+
+  getMaxRequests() {
+    return this.maxRequests;
+  }
+
+  getWindowMs() {
+    return this.maxRequests;
   }
 
   middleware() {

@@ -30,5 +30,5 @@ app.get('*', (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
-  console.log(`Rate limit: ${rateLimiter.maxRequests} requests per ${rateLimiter.windowMs / 1000}s`);
+  console.log(`Rate limit: ${rateLimiter.getMaxRequests()} requests per ${rateLimiter.getWindowMs() / 1000}s`);
 });
