@@ -1,30 +1,38 @@
-
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { z } from 'zod';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import { 
-  Form, 
-  FormControl, 
-  FormField, 
-  FormItem, 
-  FormLabel, 
-  FormMessage 
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { 
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { z } from "zod";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue, 
-} from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Patient, patients, departments, diagnoses, comorbidityList, riskFactorList, insuranceTypes } from '@/data/readmissionData';
-import { toast } from 'sonner';
+  SelectValue,
+} from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import {
+  Patient,
+  patients,
+  departments,
+  diagnoses,
+  comorbidityList,
+  riskFactorList,
+  insuranceTypes,
+} from "@/data/readmissionData";
+import { toast } from "sonner";
+import { differenceInDays, parseISO } from "date-fns";
 
 // Form schema for validation
 const patientFormSchema = z.object({
@@ -40,7 +48,7 @@ const patientFormSchema = z.object({
   readmitted: z.boolean().default(false),
   readmissionDate: z.string().optional(),
   riskFactors: z.array(z.string()).default([]),
-  comorbidities: z.array(z.string()).default([])
+  comorbidities: z.array(z.string()).default([]),
 });
 
 type PatientFormValues = z.infer<typeof patientFormSchema>;
@@ -58,56 +66,74 @@ const PatientForm: React.FC<PatientFormProps> = ({ patient, onSubmit }) => {
   const [selectedComorbidities, setSelectedComorbidities] = useState<string[]>(
     patient?.comorbidities || []
   );
-  
+
   // Default values for the form
   const defaultValues: Partial<PatientFormValues> = {
-    name: patient?.name || '',
+    name: patient?.name || "",
     age: patient?.age || 30,
-    gender: patient?.gender || 'Male',
-    diagnosis: patient?.diagnosis || '',
-    admissionDate: patient?.admissionDate || new Date().toISOString().split('T')[0],
-    dischargeDate: patient?.dischargeDate || '',
-    department: patient?.department || '',
-    insurance: patient?.insurance || '',
+    gender: patient?.gender || "Male",
+    diagnosis: patient?.diagnosis || "",
+    admissionDate:
+      patient?.admissionDate || new Date().toISOString().split("T")[0],
+    dischargeDate: patient?.dischargeDate || "",
+    department: patient?.department || "",
+    insurance: patient?.insurance || "",
     lengthOfStay: patient?.lengthOfStay || 1,
     readmitted: patient?.readmitted || false,
-    readmissionDate: patient?.readmissionDate || '',
+    readmissionDate: patient?.readmissionDate || "",
     riskFactors: patient?.riskFactors || [],
-    comorbidities: patient?.comorbidities || []
+    comorbidities: patient?.comorbidities || [],
   };
 
   const form = useForm<PatientFormValues>({
     resolver: zodResolver(patientFormSchema),
-    defaultValues
+    defaultValues,
   });
-  
+
   const handleFormSubmit = (data: PatientFormValues) => {
     data.riskFactors = selectedRiskFactors;
     data.comorbidities = selectedComorbidities;
     onSubmit(data);
   };
-  
+
   const toggleRiskFactor = (factor: string) => {
-    setSelectedRiskFactors(current => 
-      current.includes(factor) 
-        ? current.filter(f => f !== factor)
+    setSelectedRiskFactors((current) =>
+      current.includes(factor)
+        ? current.filter((f) => f !== factor)
         : [...current, factor]
     );
   };
-  
+
   const toggleComorbidity = (comorbidity: string) => {
-    setSelectedComorbidities(current => 
-      current.includes(comorbidity) 
-        ? current.filter(c => c !== comorbidity)
+    setSelectedComorbidities((current) =>
+      current.includes(comorbidity)
+        ? current.filter((c) => c !== comorbidity)
         : [...current, comorbidity]
     );
   };
-  
+
   const watchReadmitted = form.watch("readmitted");
-  
+
+  useEffect(() => {
+    const admission = form.watch("admissionDate");
+    const discharge = form.watch("dischargeDate");
+
+    if (admission && discharge) {
+      const start = parseISO(admission);
+      const end = parseISO(discharge);
+      const days = differenceInDays(end, start);
+      if (days >= 0) {
+        form.setValue("lengthOfStay", days || 1);
+      }
+    }
+  }, [form.watch("admissionDate"), form.watch("dischargeDate")]);
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-6">
+      <form
+        onSubmit={form.handleSubmit(handleFormSubmit)}
+        className="space-y-6"
+      >
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <FormField
             control={form.control}
@@ -122,7 +148,7 @@ const PatientForm: React.FC<PatientFormProps> = ({ patient, onSubmit }) => {
               </FormItem>
             )}
           />
-          
+
           <div className="grid grid-cols-2 gap-4">
             <FormField
               control={form.control}
@@ -137,15 +163,15 @@ const PatientForm: React.FC<PatientFormProps> = ({ patient, onSubmit }) => {
                 </FormItem>
               )}
             />
-            
+
             <FormField
               control={form.control}
               name="gender"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Gender</FormLabel>
-                  <Select 
-                    onValueChange={field.onChange} 
+                  <Select
+                    onValueChange={field.onChange}
                     defaultValue={field.value}
                   >
                     <FormControl>
@@ -164,15 +190,15 @@ const PatientForm: React.FC<PatientFormProps> = ({ patient, onSubmit }) => {
               )}
             />
           </div>
-          
+
           <FormField
             control={form.control}
             name="diagnosis"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Diagnosis</FormLabel>
-                <Select 
-                  onValueChange={field.onChange} 
+                <Select
+                  onValueChange={field.onChange}
                   defaultValue={field.value}
                 >
                   <FormControl>
@@ -182,7 +208,9 @@ const PatientForm: React.FC<PatientFormProps> = ({ patient, onSubmit }) => {
                   </FormControl>
                   <SelectContent>
                     {diagnoses.map((diagnosis) => (
-                      <SelectItem key={diagnosis} value={diagnosis}>{diagnosis}</SelectItem>
+                      <SelectItem key={diagnosis} value={diagnosis}>
+                        {diagnosis}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -190,15 +218,15 @@ const PatientForm: React.FC<PatientFormProps> = ({ patient, onSubmit }) => {
               </FormItem>
             )}
           />
-          
+
           <FormField
             control={form.control}
             name="department"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Department</FormLabel>
-                <Select 
-                  onValueChange={field.onChange} 
+                <Select
+                  onValueChange={field.onChange}
                   defaultValue={field.value}
                 >
                   <FormControl>
@@ -208,7 +236,9 @@ const PatientForm: React.FC<PatientFormProps> = ({ patient, onSubmit }) => {
                   </FormControl>
                   <SelectContent>
                     {departments.map((department) => (
-                      <SelectItem key={department} value={department}>{department}</SelectItem>
+                      <SelectItem key={department} value={department}>
+                        {department}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -216,15 +246,15 @@ const PatientForm: React.FC<PatientFormProps> = ({ patient, onSubmit }) => {
               </FormItem>
             )}
           />
-          
+
           <FormField
             control={form.control}
             name="insurance"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Insurance</FormLabel>
-                <Select 
-                  onValueChange={field.onChange} 
+                <Select
+                  onValueChange={field.onChange}
                   defaultValue={field.value}
                 >
                   <FormControl>
@@ -234,7 +264,9 @@ const PatientForm: React.FC<PatientFormProps> = ({ patient, onSubmit }) => {
                   </FormControl>
                   <SelectContent>
                     {insuranceTypes.map((insurance) => (
-                      <SelectItem key={insurance} value={insurance}>{insurance}</SelectItem>
+                      <SelectItem key={insurance} value={insurance}>
+                        {insurance}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
@@ -242,7 +274,7 @@ const PatientForm: React.FC<PatientFormProps> = ({ patient, onSubmit }) => {
               </FormItem>
             )}
           />
-          
+
           <FormField
             control={form.control}
             name="admissionDate"
@@ -256,7 +288,7 @@ const PatientForm: React.FC<PatientFormProps> = ({ patient, onSubmit }) => {
               </FormItem>
             )}
           />
-          
+
           <FormField
             control={form.control}
             name="dischargeDate"
@@ -270,7 +302,7 @@ const PatientForm: React.FC<PatientFormProps> = ({ patient, onSubmit }) => {
               </FormItem>
             )}
           />
-          
+
           <FormField
             control={form.control}
             name="lengthOfStay"
@@ -284,7 +316,7 @@ const PatientForm: React.FC<PatientFormProps> = ({ patient, onSubmit }) => {
               </FormItem>
             )}
           />
-          
+
           <FormField
             control={form.control}
             name="readmitted"
@@ -297,14 +329,12 @@ const PatientForm: React.FC<PatientFormProps> = ({ patient, onSubmit }) => {
                   />
                 </FormControl>
                 <div className="space-y-1 leading-none">
-                  <FormLabel>
-                    Patient was readmitted
-                  </FormLabel>
+                  <FormLabel>Patient was readmitted</FormLabel>
                 </div>
               </FormItem>
             )}
           />
-          
+
           {watchReadmitted && (
             <FormField
               control={form.control}
@@ -321,19 +351,21 @@ const PatientForm: React.FC<PatientFormProps> = ({ patient, onSubmit }) => {
             />
           )}
         </div>
-        
+
         <div className="space-y-4">
           <div>
             <FormLabel>Risk Factors</FormLabel>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 mt-2">
               {riskFactorList.map((factor) => (
-                <div 
-                  key={factor} 
+                <div
+                  key={factor}
                   className={`
                     cursor-pointer p-2 rounded-md text-sm
-                    ${selectedRiskFactors.includes(factor) 
-                      ? 'bg-red-100 text-red-700 border border-red-200' 
-                      : 'bg-gray-100 text-gray-700 border border-gray-200'}
+                    ${
+                      selectedRiskFactors.includes(factor)
+                        ? "bg-red-100 text-red-700 border border-red-200"
+                        : "bg-gray-100 text-gray-700 border border-gray-200"
+                    }
                   `}
                   onClick={() => toggleRiskFactor(factor)}
                 >
@@ -342,18 +374,20 @@ const PatientForm: React.FC<PatientFormProps> = ({ patient, onSubmit }) => {
               ))}
             </div>
           </div>
-          
+
           <div>
             <FormLabel>Comorbidities</FormLabel>
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 mt-2">
               {comorbidityList.map((comorbidity) => (
-                <div 
-                  key={comorbidity} 
+                <div
+                  key={comorbidity}
                   className={`
                     cursor-pointer p-2 rounded-md text-sm
-                    ${selectedComorbidities.includes(comorbidity) 
-                      ? 'bg-blue-100 text-blue-700 border border-blue-200' 
-                      : 'bg-gray-100 text-gray-700 border border-gray-200'}
+                    ${
+                      selectedComorbidities.includes(comorbidity)
+                        ? "bg-blue-100 text-blue-700 border border-blue-200"
+                        : "bg-gray-100 text-gray-700 border border-gray-200"
+                    }
                   `}
                   onClick={() => toggleComorbidity(comorbidity)}
                 >
@@ -363,9 +397,11 @@ const PatientForm: React.FC<PatientFormProps> = ({ patient, onSubmit }) => {
             </div>
           </div>
         </div>
-        
+
         <div className="flex justify-end space-x-4 pt-4">
-          <Button variant="outline" type="button" onClick={() => navigate(-1)}>Cancel</Button>
+          <Button variant="outline" type="button" onClick={() => navigate(-1)}>
+            Cancel
+          </Button>
           <Button type="submit">Save Patient</Button>
         </div>
       </form>
