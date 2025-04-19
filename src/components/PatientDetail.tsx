@@ -11,23 +11,95 @@ import {
   Building, 
   CreditCard,
   ArrowLeft,
-  Edit
+  Edit,
+  Loader2
 } from 'lucide-react';
-import { patients } from '../data/readmissionData';
+import { usePatient } from '../hooks/useApi';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const PatientDetail: React.FC = () => {
   const { patientId } = useParams<{ patientId: string }>();
+  const { data: patientResponse, isLoading, error } = usePatient(patientId || '');
   
-  const patient = patients.find(p => p.id === patientId);
+  const patient = patientResponse?.data;
   
-  if (!patient) {
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="max-w-5xl mx-auto">
+        <div className="mb-6 flex justify-between items-center">
+          <Skeleton className="h-10 w-32" />
+          <Skeleton className="h-10 w-32" />
+        </div>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-1">
+            <div className="dashboard-card">
+              <div className="dashboard-card-header">
+                <Skeleton className="h-6 w-32" />
+              </div>
+              <div className="dashboard-card-body">
+                <div className="text-center mb-6">
+                  <Skeleton className="h-20 w-20 rounded-full mx-auto mb-4" />
+                  <Skeleton className="h-6 w-32 mx-auto mb-2" />
+                  <Skeleton className="h-4 w-24 mx-auto mb-2" />
+                </div>
+                <div className="space-y-4">
+                  {[1, 2, 3, 4].map((i) => (
+                    <div key={i}>
+                      <Skeleton className="h-4 w-20 mb-1" />
+                      <Skeleton className="h-6 w-full" />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div className="lg:col-span-2">
+            <div className="grid grid-cols-1 gap-6">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="dashboard-card">
+                  <div className="dashboard-card-header">
+                    <Skeleton className="h-6 w-32" />
+                  </div>
+                  <div className="dashboard-card-body">
+                    <div className="space-y-4">
+                      {Array(3).fill(0).map((_, idx) => (
+                        <Skeleton key={idx} className="h-6 w-full" />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
+  // Show error state
+  if (error || !patient) {
     return (
       <div className="p-8 text-center">
-        <h2 className="text-2xl font-bold text-gray-800 mb-4">Patient Not Found</h2>
-        <p className="text-gray-600 mb-6">The patient record you're looking for doesn't exist.</p>
+        <div className="text-red-500 mb-4">
+          <AlertTriangle size={48} className="mx-auto" />
+        </div>
+        <h2 className="text-2xl font-bold text-gray-800 mb-4">
+          {error ? "Error Loading Patient" : "Patient Not Found"}
+        </h2>
+        <p className="text-gray-600 mb-6">
+          {error 
+            ? "There was a problem connecting to the server. Please try again." 
+            : "The patient record you're looking for doesn't exist."}
+        </p>
+        <div className="text-xs text-gray-500 mb-6">
+          Source: {patientResponse?.source} ({patientResponse?.responseTime})
+        </div>
         <Link to="/patients">
           <Button>
             <ArrowLeft className="mr-2 h-4 w-4" />
@@ -68,6 +140,10 @@ const PatientDetail: React.FC = () => {
             Edit Patient
           </Button>
         </Link>
+      </div>
+      
+      <div className="text-xs text-gray-500 mb-2">
+        Source: {patientResponse.source} ({patientResponse.responseTime})
       </div>
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">

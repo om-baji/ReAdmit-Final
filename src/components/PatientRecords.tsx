@@ -8,32 +8,76 @@ import {
   XCircle, 
   ChevronLeft, 
   ChevronRight,
-  PlusCircle
+  PlusCircle, 
+  Loader2
 } from 'lucide-react';
-import { patients } from '../data/readmissionData';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { usePatients } from '../hooks/useApi';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const PatientRecords: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   
-  // Filter patients based on search term
-  const filteredPatients = patients.filter(patient => 
+  const { data: patientsResponse, isLoading, error } = usePatients(currentPage, itemsPerPage);
+  
+  // Local filtering for search
+  const filteredPatients = patientsResponse?.data.filter(patient => 
     patient.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     patient.id.toLowerCase().includes(searchTerm.toLowerCase()) ||
     patient.diagnosis.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  ) || [];
   
-  // Calculate pagination info
-  const totalPages = Math.ceil(filteredPatients.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const visiblePatients = filteredPatients.slice(startIndex, startIndex + itemsPerPage);
+  const totalPages = patientsResponse?.totalPages || 1;
   
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
+
+  // Show loading skeleton
+  if (isLoading) {
+    return (
+      <div className="dashboard-card">
+        <div className="dashboard-card-header flex justify-between items-center">
+          <h3 className="text-lg font-medium">Patient Records</h3>
+          <div className="flex items-center gap-4">
+            <Skeleton className="h-10 w-64" />
+            <Skeleton className="h-10 w-32" />
+          </div>
+        </div>
+        <div className="p-4">
+          <div className="space-y-4">
+            {[1, 2, 3, 4, 5].map(i => (
+              <Skeleton key={i} className="w-full h-16" />
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error message
+  if (error || !patientsResponse) {
+    return (
+      <div className="dashboard-card">
+        <div className="dashboard-card-header">
+          <h3 className="text-lg font-medium">Patient Records</h3>
+        </div>
+        <div className="p-8 text-center">
+          <div className="text-red-500 mb-4">
+            <AlertTriangle size={48} className="mx-auto" />
+          </div>
+          <h3 className="text-lg font-medium mb-2">Failed to load patient data</h3>
+          <p className="text-gray-500 mb-4">There was an error connecting to the server</p>
+          <Button onClick={() => window.location.reload()}>
+            Retry
+          </Button>
+        </div>
+      </div>
+    );
+  }
   
   return (
     <div className="dashboard-card">
@@ -89,7 +133,7 @@ const PatientRecords: React.FC = () => {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {visiblePatients.map((patient) => (
+            {filteredPatients.map((patient) => (
               <tr key={patient.id} className="hover:bg-gray-50">
                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                   {patient.id}
@@ -146,6 +190,13 @@ const PatientRecords: React.FC = () => {
         </table>
       </div>
       
+      <div className="px-4 py-2 bg-gray-50 border-t">
+        <p className="text-xs text-gray-500">
+          Source: {patientsResponse.source} ({patientsResponse.responseTime}) | 
+          Page {currentPage} of {totalPages}
+        </p>
+      </div>
+      
       {/* Pagination */}
       {totalPages > 1 && (
         <div className="px-6 py-4 flex items-center justify-between border-t border-gray-200">
@@ -170,11 +221,11 @@ const PatientRecords: React.FC = () => {
           <div className="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
             <div>
               <p className="text-sm text-gray-700">
-                Showing <span className="font-medium">{startIndex + 1}</span> to{' '}
+                Showing <span className="font-medium">{(currentPage - 1) * itemsPerPage + 1}</span> to{' '}
                 <span className="font-medium">
-                  {Math.min(startIndex + itemsPerPage, filteredPatients.length)}
+                  {Math.min(currentPage * itemsPerPage, patientsResponse.total)}
                 </span>{' '}
-                of <span className="font-medium">{filteredPatients.length}</span> results
+                of <span className="font-medium">{patientsResponse.total}</span> results
               </p>
             </div>
             <div>

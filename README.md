@@ -1,73 +1,50 @@
-# Welcome to your Lovable project
 
-## Project info
+# ReadmitInsight Hub
 
-**URL**: https://lovable.dev/projects/a4c89843-58d1-4629-8f79-fc39b8acc2bb
+A hospital readmission analytics dashboard built with React, TypeScript, and Express.
 
-## How can I edit this code?
+## Project Structure
 
-There are several ways of editing your application.
+- `/src` - React frontend code
+- `/server` - Express backend with custom implementations
 
-**Use Lovable**
+## Backend Features
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/a4c89843-58d1-4629-8f79-fc39b8acc2bb) and start prompting.
+This project includes a custom Express server with:
 
-Changes made via Lovable will be committed automatically to this repo.
+1. **Custom Rate Limiting** - IP-based rate limiting using SHA-256 hashing for privacy
+2. **Custom Caching** - Two caching mechanisms:
+   - LRU (Least Recently Used) Cache - Prioritizes recently accessed items
+   - LFU (Least Frequently Used) Cache - Prioritizes frequently accessed items
+3. **Simulated Network Conditions** - Variable response times for cached vs. fresh data
+4. **Clean API Design** - RESTful endpoints with consistent patterns
 
-**Use your preferred IDE**
+## Getting Started
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Running the backend:
+```bash
+cd server
+npm install
+npm start
+```
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+### Running the frontend:
+```bash
+npm install
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+## API Endpoints
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+- `GET /api/stats` - Get dashboard statistics
+- `GET /api/patients` - Get paginated patient list
+- `GET /api/patients/:id` - Get patient details
+- `GET /api/analytics` - Get analytics data
 
-**Use GitHub Codespaces**
+## Deployment
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+For production deployment, you would need to:
+1. Update the API base URL in `src/api/api.ts`
+2. Configure appropriate environment variables
+3. Set up proper server security measures
 
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/a4c89843-58d1-4629-8f79-fc39b8acc2bb) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)

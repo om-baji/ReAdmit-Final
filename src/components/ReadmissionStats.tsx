@@ -1,12 +1,44 @@
 
 import React from 'react';
 import { Activity, Clock, AlertTriangle, Users } from 'lucide-react';
-import { calculateStats } from '../data/readmissionData';
 import { Progress } from '@/components/ui/progress';
+import { useStats } from '../hooks/useApi';
+import { Skeleton } from '@/components/ui/skeleton';
 
 const ReadmissionStats: React.FC = () => {
-  const stats = calculateStats();
+  const { data: statsResponse, isLoading, error } = useStats();
+  const stats = statsResponse?.data;
   
+  // Show loading state
+  if (isLoading) {
+    return (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {[1, 2, 3, 4].map((i) => (
+          <div key={i} className="stat-card">
+            <div className="flex items-start justify-between">
+              <div className="w-full">
+                <Skeleton className="h-4 w-24 mb-2" />
+                <Skeleton className="h-8 w-16 mb-4" />
+                <Skeleton className="h-2 w-full mb-4" />
+                <Skeleton className="h-4 w-36" />
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+  
+  // Show error state
+  if (error || !stats) {
+    return (
+      <div className="p-4 bg-red-50 text-red-800 rounded-lg">
+        <p className="font-medium">Failed to load readmission statistics</p>
+        <p className="text-sm mt-1">Please try refreshing the page</p>
+      </div>
+    );
+  }
+
   // Format readmission rate as percentage
   const readmissionRatePercent = (stats.readmissionRate * 100).toFixed(1);
   
@@ -28,6 +60,9 @@ const ReadmissionStats: React.FC = () => {
         <p className="mt-3 text-sm text-gray-500">
           {stats.readmittedPatients} of {stats.totalPatients} patients readmitted
         </p>
+        <p className="mt-1 text-xs text-gray-400">
+          Source: {statsResponse.source} ({statsResponse.responseTime})
+        </p>
       </div>
       
       <div className="stat-card">
@@ -47,6 +82,9 @@ const ReadmissionStats: React.FC = () => {
         </div>
         <p className="mt-3 text-sm text-gray-500">
           Average duration from admission to discharge
+        </p>
+        <p className="mt-1 text-xs text-gray-400">
+          Source: {statsResponse.source} ({statsResponse.responseTime})
         </p>
       </div>
       
@@ -71,6 +109,9 @@ const ReadmissionStats: React.FC = () => {
         <p className="mt-3 text-sm text-gray-500">
           Patients with risk score &gt; 70
         </p>
+        <p className="mt-1 text-xs text-gray-400">
+          Source: {statsResponse.source} ({statsResponse.responseTime})
+        </p>
       </div>
       
       <div className="stat-card">
@@ -93,6 +134,9 @@ const ReadmissionStats: React.FC = () => {
         </div>
         <p className="mt-3 text-sm text-gray-500">
           Total patients in database
+        </p>
+        <p className="mt-1 text-xs text-gray-400">
+          Source: {statsResponse.source} ({statsResponse.responseTime})
         </p>
       </div>
     </div>
