@@ -9,9 +9,8 @@
     "build:dev": "vite build --mode development",
     "lint": "eslint .",
     "preview": "vite preview",
-    "start": "concurrently \"bun run --cwd server server.ts\" \"npm run dev\"",
-    "preinstall": "bun install --cwd server && npm install"
-
+    "start": "concurrently \"bun run --cwd server server.ts\" \"bun run dev\"",
+    "preinstall": "bun install --cwd server && bun install"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
