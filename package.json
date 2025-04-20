@@ -10,7 +10,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "start": "concurrently \"bun run --cwd server server.ts\" \"npm run dev\"",
-    "preinstall": "cd server && bun install"
+    "preinstall": "bun install --cwd server && npm install"
 
   },
   "dependencies": {
